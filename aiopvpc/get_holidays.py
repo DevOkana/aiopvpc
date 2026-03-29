@@ -34,5 +34,5 @@ class Holiday:
                     day_name = self.week_holidays(fecha.weekday())
                     holidays_dic[fecha] = f"({day_name}), {holiday['localName']}"
                 return {self.anno: holidays_dic}
-        except Exception:
+        except (OSError, urllib.error.URLError, ValueError, KeyError):
             return {}
