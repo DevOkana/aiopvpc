@@ -1,5 +1,5 @@
 import json
-import requests
+import urllib.request
 from datetime import date, datetime
 
 
@@ -12,31 +12,18 @@ class Holiday:
         return days[number_day]
 
     def get_holidays(self) -> dict[int, dict[date, str]]:
-        anno_dic = {}
-        response = requests.get(
-            f'https://date.nager.at/api/v3/PublicHolidays/{self.anno}/ES',
-            timeout=5
-        )
-
-        if response.status_code != 200:
+        url = f'https://date.nager.at/api/v3/PublicHolidays/{self.anno}/ES'
+        try:
+            with urllib.request.urlopen(url, timeout=5) as response:
+                holidays_dic: dict[date, str] = {}
+                for holiday in json.loads(response.read().decode()):
+                    if not holiday['global']:
+                        continue
+                    fecha = date.fromisoformat(holiday['date'])
+                    if fecha.isoweekday() >= 6:
+                        continue
+                    day_name = self.week_holidays(fecha.weekday())
+                    holidays_dic[fecha] = f"({day_name}), {holiday['localName']}"
+                return {self.anno: holidays_dic}
+        except Exception:
             return {}
-
-        holidays_dic: dict[date, str] = {}
-        for holiday in json.loads(response.text):
-            if not holiday['global']:
-                continue
-            fecha = date.fromisoformat(holiday['date'])
-            if fecha.isoweekday() >= 6:  # Fines de semana ya son P3
-                continue
-            day_name = self.week_holidays(fecha.weekday())
-            holidays_dic[fecha] = f"({day_name}), {holiday['localName']}"
-
-        return {self.anno: holidays_dic}
-
-    @staticmethod
-    def convert_string_to_date(string_date):
-        return datetime.strptime(string_date, "%Y-%m-%d")
-
-
-
-

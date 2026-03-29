@@ -1,9 +1,8 @@
 """ESIOS API handler for HomeAssistant. PVPC tariff periods."""
-
 from __future__ import annotations
 
+import concurrent.futures
 from datetime import date, datetime, timedelta
-
 from aiopvpc.get_holidays import Holiday
 
 
@@ -13,18 +12,16 @@ class _LazyHolidayDict:
 
     def __getitem__(self, year: int) -> dict[date, str]:
         if year not in self._cache:
-            self._cache[year] = Holiday(year).get_holidays().get(year, {})
+            with concurrent.futures.ThreadPoolExecutor() as pool:
+                self._cache[year] = pool.submit(
+                    lambda: Holiday(year).get_holidays().get(year, {})
+                ).result()
         return self._cache[year]
 
 
 _HOURS_P2 = (8, 9, 14, 15, 16, 17, 22, 23)
 _HOURS_P2_CYM = (8, 9, 10, 15, 16, 17, 18, 23)
-# TODO review 'festivos nacionales no sustituibles de fecha fija', + 6/1
-# obtained from `holidays` library,
-# - with weekend days disabled (already full P3)
-# - no 'translated' holidays
-# - no 'Jueves Santo' as special day
-_NATIONAL_EXTRA_HOLIDAYS_FOR_P3_PERIOD =  _LazyHolidayDict()
+_NATIONAL_EXTRA_HOLIDAYS_FOR_P3_PERIOD = _LazyHolidayDict()
 
 
 def _tariff_period_key(local_ts: datetime, zone_ceuta_melilla: bool) -> str:
