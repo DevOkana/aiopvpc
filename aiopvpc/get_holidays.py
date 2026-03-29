@@ -1,4 +1,5 @@
 import json
+import urllib.error
 import urllib.request
 from datetime import date
 
@@ -22,7 +23,7 @@ class Holiday:
     def get_holidays(self) -> dict[int, dict[date, str]]:
         url = f"https://date.nager.at/api/v3/PublicHolidays/{self.anno}/ES"
         try:
-            with urllib.request.urlopen(url, timeout=5) as response:
+            with urllib.request.urlopen(url, timeout=10) as response:
                 holidays_dic: dict[date, str] = {}
                 for holiday in json.loads(response.read().decode()):
                     if not holiday["global"]:
