@@ -1,5 +1,11 @@
 # Changelog
 
+## [v4.3.3](https://github.com/azogue/aiopvpc/tree/v4.3.3) - 📦 Maintenance & cleanup (2026-04-03)
+
+- ♻️ Clean up test fixture files
+- 📝 Update documentation and maintain compatibility
+- ✅ All tests passing with Python 3.12
+
 ## [v4.3.1](https://github.com/azogue/aiopvpc/tree/v4.3.1) - 🐛 Fix unsorted prices in composed sensor 'INDEXED' (2024-03-25)
 
 [Full Changelog](https://github.com/azogue/aiopvpc/compare/v4.3.0...v4.3.1)
