@@ -4,20 +4,22 @@ from __future__ import annotations
 
 import concurrent.futures
 from datetime import date, datetime, timedelta
-
-from aiopvpc.get_holidays import Holiday
+import holidays
 
 
 class _LazyHolidayDict:
     def __init__(self) -> None:
         self._cache: dict[int, dict[date, str]] = {}
+        self.es_holidays = {}
+
 
     def __getitem__(self, year: int) -> dict[date, str]:
         if year not in self._cache:
             with concurrent.futures.ThreadPoolExecutor() as pool:
                 self._cache[year] = pool.submit(
-                    lambda: Holiday(year).get_holidays().get(year, {})
+                    lambda: holidays.ES(years=year)
                 ).result()
+        self.es_holidays[year] = self._cache[year]
         return self._cache[year]
 
 
