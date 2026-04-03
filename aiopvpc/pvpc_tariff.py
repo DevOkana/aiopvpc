@@ -11,7 +11,7 @@ import holidays
 class _LazyHolidayDict:
     def __init__(self) -> None:
         self._cache: dict[int, dict[date, str]] = {}
-        self.es_holidays = {}
+        self.es_holidays: dict[int, dict[date, str]] = {}
 
     def __getitem__(self, year: int) -> dict[date, str]:
         if year not in self._cache:
