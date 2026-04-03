@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import concurrent.futures
 from datetime import date, datetime, timedelta
+
 import holidays
 
 
@@ -11,7 +12,6 @@ class _LazyHolidayDict:
     def __init__(self) -> None:
         self._cache: dict[int, dict[date, str]] = {}
         self.es_holidays = {}
-
 
     def __getitem__(self, year: int) -> dict[date, str]:
         if year not in self._cache:
