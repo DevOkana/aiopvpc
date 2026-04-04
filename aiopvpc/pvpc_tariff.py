@@ -25,7 +25,7 @@ class _LazyHolidayDict:
     def __getitem__(self, year: int) -> dict[date, str]:
         if year not in self._cache:
             try:
-                raw = holidays.ES(years=year, observed=False)
+                raw = holidays.ES(years=year, observed=False, subdiv=None)
                 self._cache[year] = {
                     d: name for d, name in raw.items()
                     if d.isoweekday() <= 5
