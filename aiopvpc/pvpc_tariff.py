@@ -24,11 +24,14 @@ class _LazyHolidayDict:
 
     def __getitem__(self, year: int) -> dict[date, str]:
         if year not in self._cache:
-            raw = holidays.ES(years=year, observed=False)
-            self._cache[year] = {
-                d: name for d, name in raw.items()
-                if d.isoweekday() <= 5
-            }
+            try:
+                raw = holidays.ES(years=year, observed=False)
+                self._cache[year] = {
+                    d: name for d, name in raw.items()
+                    if d.isoweekday() <= 5
+                }
+            except (holidays.utils.HolidayLibError, ValueError, NotImplementedError):
+                self._cache[year] = {}
         return self._cache[year]
 
     def __contains__(self, key: object) -> bool:
@@ -44,7 +47,7 @@ _NATIONAL_EXTRA_HOLIDAYS_FOR_P3_PERIOD = _LazyHolidayDict()
 def _tariff_period_key(local_ts: datetime, zone_ceuta_melilla: bool) -> str:
     """Return period key (P1/P2/P3) for current hour."""
     day = local_ts.date()
-    national_holiday = day in _NATIONAL_EXTRA_HOLIDAYS_FOR_P3_PERIOD[day.year]
+    national_holiday = day in _NATIONAL_EXTRA_HOLIDAYS_FOR_P3_PERIOD
     if national_holiday or day.isoweekday() >= 6 or local_ts.hour < 8:
         return "P3"
     if zone_ceuta_melilla and local_ts.hour in _HOURS_P2_CYM:

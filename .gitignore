@@ -101,3 +101,7 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# file test
+testHolidays/*.py
+tests/
