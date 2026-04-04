@@ -22,7 +22,10 @@ class _LazyHolidayDict:
     def __init__(self) -> None:
         self._cache: dict[int, dict[date, str]] = {}
 
-    def __getitem__(self, year: int) -> dict[date, str]:
+    def __contains__(self, key: object) -> bool:
+        if not isinstance(key, date):
+            return False
+        year = key.year
         if year not in self._cache:
             try:
                 raw = holidays.ES(years=year, observed=False, subdiv=None)
@@ -31,12 +34,7 @@ class _LazyHolidayDict:
                 }
             except (holidays.utils.HolidayLibError, ValueError, NotImplementedError):
                 self._cache[year] = {}
-        return self._cache[year]
-
-    def __contains__(self, key: object) -> bool:
-        if not isinstance(key, date):
-            return False
-        return key in self[key.year]
+        return key in self._cache[year]
 
 
 _HOURS_P2 = (8, 9, 14, 15, 16, 17, 22, 23)
