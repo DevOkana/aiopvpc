@@ -18,17 +18,16 @@ class _LazyHolidayDict:
       P3 just because the original holiday fell on a Sunday.
       The PVPC tariff uses the canonical holiday date, not the substitution.
     """
+
     def __init__(self) -> None:
         self._cache: dict[int, dict[date, str]] = {}
-
 
     def __getitem__(self, year: int) -> dict[date, str]:
         if year not in self._cache:
             try:
                 raw = holidays.ES(years=year, observed=False, subdiv=None)
                 self._cache[year] = {
-                    d: name for d, name in raw.items()
-                    if d.isoweekday() <= 5
+                    d: name for d, name in raw.items() if d.isoweekday() <= 5
                 }
             except (holidays.utils.HolidayLibError, ValueError, NotImplementedError):
                 self._cache[year] = {}
@@ -38,6 +37,7 @@ class _LazyHolidayDict:
         if not isinstance(key, date):
             return False
         return key in self[key.year]
+
 
 _HOURS_P2 = (8, 9, 14, 15, 16, 17, 22, 23)
 _HOURS_P2_CYM = (8, 9, 10, 15, 16, 17, 18, 23)
