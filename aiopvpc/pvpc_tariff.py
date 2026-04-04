@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import concurrent.futures
 from datetime import date, datetime, timedelta
 
 import holidays
@@ -21,23 +20,14 @@ class _LazyHolidayDict:
     """
     def __init__(self) -> None:
         self._cache: dict[int, dict[date, str]] = {}
-        self.es_holidays: dict[int, dict[date, str]] = {}
+
 
     def __getitem__(self, year: int) -> dict[date, str]:
         if year not in self._cache:
-            with concurrent.futures.ThreadPoolExecutor() as pool:
-                raw: holidays.HolidayBase = pool.submit(
-                    lambda: holidays.ES(
-                        years=year,
-                        observed=False,   # No trasladados
-                    )
-                ).result()
-            # Filter: keep only Mon-Fri (isoweekday 1-5)
-            # Weekends are already P3 by tariff logic, no need to include them.
+            raw = holidays.ES(years=year, observed=False)
             self._cache[year] = {
-                d: name
-                for d, name in raw.items()
-                if d.isoweekday() <= 5  # 1=Mon ... 5=Fri, 6=Sat, 7=Sun
+                d: name for d, name in raw.items()
+                if d.isoweekday() <= 5
             }
         return self._cache[year]
 
