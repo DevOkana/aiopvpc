@@ -29,7 +29,7 @@ class _LazyHolidayDict:
                 self._cache[year] = {
                     d: name for d, name in raw.items() if d.isoweekday() <= 5
                 }
-            except (holidays.utils.HolidayLibError, ValueError, NotImplementedError):
+            except _holiday_errors():
                 self._cache[year] = {}
         return self._cache[year]
 
@@ -37,6 +37,15 @@ class _LazyHolidayDict:
         if not isinstance(key, date):
             return False
         return key in self[key.year]
+
+
+def _holiday_errors() -> tuple[type[BaseException], ...]:
+    holiday_lib_error = getattr(holidays.utils, "HolidayLibError", None)
+    if isinstance(holiday_lib_error, type) and issubclass(
+        holiday_lib_error, BaseException
+    ):
+        return holiday_lib_error, ValueError, NotImplementedError, ImportError
+    return ValueError, NotImplementedError, ImportError
 
 
 _HOURS_P2 = (8, 9, 14, 15, 16, 17, 22, 23)
